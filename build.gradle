@@ -1,0 +1,43 @@
+apply plugin:'war'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'tomcat'
+apply plugin: 'jetty'
+
+task initProject << {
+    sourceSets.all { sourceSet ->
+        sourceSet.allJava.srcDirs.each {
+            it.exists() || it.mkdirs()
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-tomcat-plugin:1.2.2'
+    }
+}
+
+dependencies {
+    compile 'org.springframework:spring-webmvc:3.2.5.RELEASE'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile ('junit:junit-dep:4.11') {
+//        exclude group: 'org.hamcrest'
+    }
+    def tomcatVersion = '7.0.11'
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
+        exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
+    }
+    providedCompile 'javax.servlet:servlet-api:2.5'
+    runtime 'javax.servlet:jstl:1.1.2'
+}
